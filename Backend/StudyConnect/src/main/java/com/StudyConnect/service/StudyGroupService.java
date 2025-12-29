@@ -73,6 +73,9 @@ public class StudyGroupService {
     }
 
     private StudyGroup buildStudyGroup(User creator, StudyGroupCreateRequest req, Subject subject) {
+        // Get the managed User entity from database
+        User managedUser = userRepository.findById(creator.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
         return StudyGroup.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
@@ -80,7 +83,7 @@ public class StudyGroupService {
                 .createdBy(creator)
                 .maxMembers(req.getMaxMembers())
                 .subject(subject)
-                .currentMembers(Set.of(creator))
+                .currentMembers(Set.of(managedUser))
                 .build();
     }
 

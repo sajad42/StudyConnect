@@ -14,7 +14,7 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "email": "sajad@example.com",
+    "email": "sajad.alizada2014@gmail.com",
     "password": "password123"
 }
 
@@ -22,7 +22,7 @@ Content-Type: application/json
 
 ### Get user profile 1
 GET http://localhost:8080/api/v1/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjM0NzM5NCwiZXhwIjoxNzY2NDMzNzk0fQ.EOe8Wu8FLV7kFg7-HBCAyXzdZFeiGjriJmcAu6w0ywY
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpIHphZGEiLCJyb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoic2FqYWQuYWxpemFkYTIwMTRAZ21haWwuY29tIiwiaWF0IjoxNzY2OTgzMjk5LCJleHAiOjE3NjcwNjk2OTl9.aZyOAcrTN8pujKHATwudWbl7fnZpG90MhEIv26yO7S8
 
 ### Get user profile 2
 GET http://localhost:8080/api/v1/users/me
@@ -56,12 +56,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsI
 
 ### GET all study groups
 GET http://localhost:8080/api/v1/groups/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjM0NzM5NCwiZXhwIjoxNzY2NDMzNzk0fQ.EOe8Wu8FLV7kFg7-HBCAyXzdZFeiGjriJmcAu6w0ywY
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpIHphZGEiLCJyb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoic2FqYWQuYWxpemFkYTIwMTRAZ21haWwuY29tIiwiaWF0IjoxNzY2OTgzMjk5LCJleHAiOjE3NjcwNjk2OTl9.aZyOAcrTN8pujKHATwudWbl7fnZpG90MhEIv26yO7S8
 
 ### POST study groups
 POST http://localhost:8080/api/v1/groups
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjY5Mzc1MSwiZXhwIjoxNzY2NzgwMTUxfQ.P7vixpLmPNs_TmzgUg9G3iQXA7y9x31GP6giyhXq7xM
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpIHphZGEiLCJyb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoic2FqYWQuYWxpemFkYTIwMTRAZ21haWwuY29tIiwiaWF0IjoxNzY2OTgzMjk5LCJleHAiOjE3NjcwNjk2OTl9.aZyOAcrTN8pujKHATwudWbl7fnZpG90MhEIv26yO7S8
 
 {
         "title": "Stud test 123",
@@ -76,18 +76,38 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROY
 }
         # "isOnline": true
 
+
+###
+
+
+curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpIHphZGEiLCJyb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoic2FqYWQuYWxpemFkYTIwMTRAZ21haWwuY29tIiwiaWF0IjoxNzY2OTgzMjk5LCJleHAiOjE3NjcwNjk2OTl9.aZyOAcrTN8pujKHATwudWbl7fnZpG90MhEIv26yO7S8" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title":"Stud test 123",
+    "description":"This is a study group",
+    "subject":"Math",
+    "tags":["Computer Science","Study Group"],
+    "isPrivate":false,
+    "maxMembers":10,
+    "sessionTitle":"Math Session",
+    "sessionDateTime":"2022-09-15T10:10:10",
+    "sessionLocation":"Library"
+  }' \
+  http://localhost:8080/api/v1/groups
+
+
 ### GET all subjects
 GET http://localhost:8080/api/v1/subjects
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjM0NzM5NCwiZXhwIjoxNzY2NDMzNzk0fQ.EOe8Wu8FLV7kFg7-HBCAyXzdZFeiGjriJmcAu6w0ywY
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpIHphZGEiLCJyb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoic2FqYWQuYWxpemFkYTIwMTRAZ21haWwuY29tIiwiaWF0IjoxNzY2OTgzMjk5LCJleHAiOjE3NjcwNjk2OTl9.aZyOAcrTN8pujKHATwudWbl7fnZpG90MhEIv26yO7S8
 
 
 ### POST Subjects
 POST http://localhost:8080/api/v1/subjects/create
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjEyMzA2MSwiZXhwIjoxNzY2MjA5NDYxfQ.TlaeRG1HMgGh-guT_cPF84ZCMSMe0EWWIpSV_7KzPs8
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpIHphZGEiLCJyb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoic2FqYWQuYWxpemFkYTIwMTRAZ21haWwuY29tIiwiaWF0IjoxNzY2OTc5NzE3LCJleHAiOjE3NjcwNjYxMTd9.JOPnG7ZVLD7iurPV2cbKSU5PpffWKlLdzVQCbw2bEWA
 
 {
-    "name": "Math"
+    "name": "Physics"
 }
 
 ### POST a Session
@@ -112,7 +132,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROY
 ### PUT update Session
 PUT http://localhost:8080/api/v1/sessions/453
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc1MTU4OTQ0NiwiZXhwIjoxNzUxNjc1ODQ2fQ.3_aI0JOVYvl7__6aJ7_CTUIBnnCbQKI6_vY9VFLQWD8
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpIHphZGEiLCJyb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoic2FqYWQuYWxpemFkYTIwMTRAZ21haWwuY29tIiwiaWF0IjoxNzY2OTc5NzE3LCJleHAiOjE3NjcwNjYxMTd9.JOPnG7ZVLD7iurPV2cbKSU5PpffWKlLdzVQCbw2bEWA
 
 {
         "title": "test6",
