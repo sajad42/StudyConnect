@@ -255,7 +255,7 @@ public class StudyGroupService {
         System.out.println("Delete study group called with ID: " + id);
         System.out.println("Current user ID: " + currentUser.getId());
 
-        // Check if group exists first
+        // Check if group exists first test
         Optional<StudyGroup> groupOpt = studyGroupRepository.findById(id);
         if (groupOpt.isEmpty()) {
             System.out.println("Group with ID " + id + " not found!");
