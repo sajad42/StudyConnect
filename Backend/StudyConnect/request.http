@@ -1,0 +1,128 @@
+### Register a new user
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "firstName": "sajad",
+    "lastName": "ali",
+    "email": "sajad1@example.com",
+    "password": "password123"
+}
+
+### Login as a user
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "sajad@example.com",
+    "password": "password123"
+}
+
+###
+
+### Get user profile 1
+GET http://localhost:8080/api/v1/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjM0NzM5NCwiZXhwIjoxNzY2NDMzNzk0fQ.EOe8Wu8FLV7kFg7-HBCAyXzdZFeiGjriJmcAu6w0ywY
+
+### Get user profile 2
+GET http://localhost:8080/api/v1/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjM0NzM5NCwiZXhwIjoxNzY2NDMzNzk0fQ.EOe8Wu8FLV7kFg7-HBCAyXzdZFeiGjriJmcAu6w0ywY
+
+
+### Get user StudyGroups
+GET http://localhost:8080/api/v1/users/me/groups
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjE3OTY0MywiZXhwIjoxNzY2MjY2MDQzfQ._P_WmpEtqy66sSNLV0dReFru51vVeLYRizQbumfZ6Jk
+
+### PUT update user
+PUT http://localhost:8080/api/v1/users/me/update
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc0ODk2NjgwMCwiZXhwIjoxNzQ5MDUzMjAwfQ.o1rJhl0hcHAGTHwylZKHvApMmRJiCVrUSWUpGgSlqf8
+
+{
+    "firstName": "sajad",
+    "lastName": "alizada",
+    "bio": "hello this is sajad"
+}
+
+### PUT change password
+PUT http://localhost:8080/api/v1/users/me/change-password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc0ODk2NjgwMCwiZXhwIjoxNzQ5MDUzMjAwfQ.o1rJhl0hcHAGTHwylZKHvApMmRJiCVrUSWUpGgSlqf8
+
+{
+    "oldPassword": "password",
+    "newPassword": "password123"
+}
+
+### GET all study groups
+GET http://localhost:8080/api/v1/groups/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjM0NzM5NCwiZXhwIjoxNzY2NDMzNzk0fQ.EOe8Wu8FLV7kFg7-HBCAyXzdZFeiGjriJmcAu6w0ywY
+
+### POST study groups
+POST http://localhost:8080/api/v1/groups
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjY5Mzc1MSwiZXhwIjoxNzY2NzgwMTUxfQ.P7vixpLmPNs_TmzgUg9G3iQXA7y9x31GP6giyhXq7xM
+
+{
+        "title": "Stud test 123",
+        "description": "This is a study group for computer science students",
+        "subject": "Math",
+        "tags": ["Computer Science", "Study Group"],
+        "isPrivate": false,
+        "maxMembers": 10,
+        "sessionTitle": "Math Session",
+        "sessionDateTime": "2022-09-15T10:10:10",
+        "sessionLocation": "Library"
+}
+        # "isOnline": true
+
+### GET all subjects
+GET http://localhost:8080/api/v1/subjects
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjM0NzM5NCwiZXhwIjoxNzY2NDMzNzk0fQ.EOe8Wu8FLV7kFg7-HBCAyXzdZFeiGjriJmcAu6w0ywY
+
+
+### POST Subjects
+POST http://localhost:8080/api/v1/subjects/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjEyMzA2MSwiZXhwIjoxNzY2MjA5NDYxfQ.TlaeRG1HMgGh-guT_cPF84ZCMSMe0EWWIpSV_7KzPs8
+
+{
+    "name": "Math"
+}
+
+### POST a Session
+POST http://localhost:8080/api/v1/sessions
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc1MTU4OTE5MywiZXhwIjoxNzUxNjc1NTkzfQ.6CSFe1vV0WkNpVkTiUt3S9nTJDTJoQ5oTI8WLlpOvWE
+
+{
+        "title": "test3",
+        "dateTime": "2022-09-15T10:10:10",
+        "location": "Library",
+        "isOnline": false,
+        "studyGroupId": 86,
+        "studyGroupTitle": "Study Group for Computer Science"
+}
+
+### GET Session by id
+GET http://localhost:8080/api/v1/sessions/453
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc1MTU4OTQ0NiwiZXhwIjoxNzUxNjc1ODQ2fQ.3_aI0JOVYvl7__6aJ7_CTUIBnnCbQKI6_vY9VFLQWD8
+
+
+### PUT update Session
+PUT http://localhost:8080/api/v1/sessions/453
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc1MTU4OTQ0NiwiZXhwIjoxNzUxNjc1ODQ2fQ.3_aI0JOVYvl7__6aJ7_CTUIBnnCbQKI6_vY9VFLQWD8
+
+{
+        "title": "test6",
+        "dateTime": "2022-09-15T10:10:10",
+        "location": "Library",
+        "isOnline": true,
+        "studyGroupId": 86,
+        "studyGroupTitle": "Study Group for Computer Science"
+}
+
+### DELETE Session by id
+DELETE http://localhost:8080/api/v1/sessions/453
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc1MTU4OTQ0NiwiZXhwIjoxNzUxNjc1ODQ2fQ.3_aI0JOVYvl7__6aJ7_CTUIBnnCbQKI6_vY9VFLQWD8
