@@ -124,7 +124,7 @@ const Groups = () => {
     const fetchGroups = async () => {
       try {
         const resp = await getAllGroups();
-    setGroups(resp);
+        setGroups(resp);
       } catch (error) {
         console.error('Failed to fetch subjects:', error);
       }

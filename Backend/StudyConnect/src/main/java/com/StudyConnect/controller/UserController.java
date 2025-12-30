@@ -1,7 +1,9 @@
 package com.StudyConnect.controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,9 +12,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.StudyConnect.dtos.ChangePasswordRequest;
-import com.StudyConnect.model.StudyGroup;
+import com.StudyConnect.dtos.StudyGroupDto;
+import com.StudyConnect.dtos.UserDto;
+import com.StudyConnect.mappers.UserMapper;
 import com.StudyConnect.model.User;
 import com.StudyConnect.service.UserService;
 
@@ -24,31 +29,42 @@ import lombok.AllArgsConstructor;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @GetMapping("/me")
-    public ResponseEntity<User> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserDto> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null || userDetails.getUsername() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Optional<UserDto> dto = userService.getProfile(userDetails.getUsername());
+        return dto.map(ResponseEntity::ok)
+                  .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     @GetMapping("/me/groups")
-    public ResponseEntity<List<StudyGroup>> getMyGroups(@AuthenticationPrincipal UserDetails userDetails) {
-        List<StudyGroup> groups = userService.getUserStudyGroup(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<List<StudyGroupDto>> getMyGroups(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null || userDetails.getUsername() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+        List<StudyGroupDto> groups = userService.getUserStudyGroup(userDetails.getUsername());
         return ResponseEntity.ok(groups);
-
     }
 
     @PutMapping("/me/update")
-    public ResponseEntity<User> updateMyProfile(
+    public ResponseEntity<UserDto> updateMyProfile(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody User updatedUser) {
-        User user = userService.updateUser(userDetails.getUsername(), updatedUser)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(user);
-    }
+            @RequestBody UserDto updatedUserDto) {
+        if (userDetails == null || userDetails.getUsername() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
 
+        User updatedEntity = userMapper.toEntity(updatedUserDto);
+        Optional<UserDto> updated = userService.updateUser(userDetails.getUsername(), updatedEntity);
+
+        return updated.map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
     @PutMapping("/me/change-password")
     public ResponseEntity<?> changePassword(
             @AuthenticationPrincipal UserDetails userDetails,

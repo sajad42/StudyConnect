@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 import com.StudyConnect.model.Role;
 
 @Data
@@ -23,7 +21,6 @@ public class UserDto {
     private String major;
     private String year;
     private String bio;
-    private LocalDateTime createdAt;
 
     private Role role;
 }

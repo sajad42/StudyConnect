@@ -24,7 +24,6 @@ public class UserMapper {
         userDto.setYear(user.getYear());
         userDto.setBio(user.getBio());
         userDto.setRole(user.getRole());
-        userDto.setCreatedAt(user.getCreatedAt());
 
         return userDto;
     }
