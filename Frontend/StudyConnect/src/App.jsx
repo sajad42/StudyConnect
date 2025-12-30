@@ -6,6 +6,7 @@ import SignIn from './Pages/SignIn'
 import Dashboard from './Pages/Dashboard'
 import Groups from './Pages/Groups'
 import CreateGroup from './Pages/CreateGroup'
+import Profile from './Pages/Profile'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path='/dashboard' element={<Dashboard/>} />
         <Route path='/groups' element={<Groups/>} />
         <Route path='/create-group' element={<CreateGroup/>} />
+        <Route path='/profile' element={<Profile/>} />
       </Routes>
     </BrowserRouter>
     </>
