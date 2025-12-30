@@ -23,9 +23,10 @@ import {
   User
 } from 'lucide-react';
 
-import { getSubjects, getAllGroups, joinGroup, deleteGroup, leaveGroup } from '../api/groupServices';
+import { getSubjects, getAllGroups } from '../api/groupServices';
 import { getUnsplashImage } from '../api/unsplashService';
 import { authService } from '../api/authservice';
+import { useGroups } from '../hooks/useGroups';
 
 const Groups = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,11 +38,12 @@ const Groups = () => {
 
   
   const [subjects, setSubjects] = useState([]);
-  const [groups, setGroups] = useState([]);
   const [groupImages, setGroupImages] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [loadingGroups, setLoadingGroups] = useState(new Set()); // Add this
+
+
+  const { groups, loading, actionLoadingSet, join, leave, groupDelete, refresh, setGroups } = useGroups();
 
 
   
@@ -64,124 +66,44 @@ const Groups = () => {
     navigate('/login');
   };
 
-  const handleJoinGroup = async (groupId, index, group) => {
-
-  try {
-    joinGroup(groupId);
-    
-    setSuccessMessage('Successfully joined the group!');
-    
-    setTimeout(() => {
-      setSuccessMessage('');
-    }, 3000);
-    
-    setGroups(prevGroups => 
-      prevGroups.map((group, i) => 
-        i === index 
-          ? { ...group, currentMembers: group.currentMembers + 1 
-                    , member: true
-          }
-          : group
-      )
-    );
-      
-  } catch (error) {
-    console.error('Failed to join the group:', error);
-    setSuccessMessage('Failed to join group. Please try again.');
-    
-    setTimeout(() => {
-      setSuccessMessage('');
-    }, 3000);
-  } finally {
-    // Remove loading state
-    setLoadingGroups(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(groupId);
-      return newSet;
-    });
-  }
-};
-
-  const handleDeteleGroup = async (groupId, index, group) => {
-
-      if ( authService.getUserId() == group.createdBy ){
-    // Add loading state
-    setLoadingGroups(prev => new Set(prev).add(groupId));
-    try {
-    deleteGroup(groupId);
-    
-    setErrorMessage('Successfully Deleted the group!');
-    
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-    
-    setGroups(prevGroups => 
-      prevGroups.filter((_, i) => i !== index)
-    );
-      
-  } catch (error) {
-    console.error('Failed to delete the group:', error);
-    setErrorMessage('Failed to delete group. Please try again.');
-    
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  } finally {
-    // Remove loading state
-    setLoadingGroups(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(groupId);
-      return newSet;
-    });
-  }
-
-  } else {
-    console.log("You are not the owner of this group");
-  }
+   // handlers pass index/group for local needs
+  const handleJoin = async (groupId) => {
+    try { 
+      await join(groupId);
+      showMessage('Successfully Joined the group!');
+    } catch (e) { 
+      showMessage('Failed to join group. Please try again.', true);
+    }
+  };
+  const handleLeave = async (groupId) => {
+    try { 
+      await leave(groupId);
+      showMessage('Successfully Left the group!');
+    } catch (e) { 
+      showMessage('Failed to leave group. Please try again.', true);
+    }
   };
 
-  const handleLeaveGroup = async (groupId, index, group) => {
-
-      if ( group.member ){
-    // Add loading state
-    setLoadingGroups(prev => new Set(prev).add(groupId));
+  const handleDeleteGroup = async (groupId) => {
     try {
-    leaveGroup(groupId);
-    
-    setSuccessMessage('Successfully Left the group!');
-    
-    setTimeout(() => {
-      setSuccessMessage('');
-    }, 3000);
-    
-    setGroups(prevGroups => 
-      prevGroups.map((group, i) => {
-        if (i === index) {
-          return { ...group, currentMembers: group.currentMembers - 1, member: false };
-        }
-        return group;
-      })
-    );
-      
-  } catch (error) {
-    console.error('Failed to delete the group:', error);
-    setErrorMessage('Failed to delete group. Please try again.');
-    
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  } finally {
-    // Remove loading state
-    setLoadingGroups(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(groupId);
-      return newSet;
-    });
-  }
-
-  }
+      await groupDelete(groupId);
+      showMessage('Successfully Deleted the group!');
+    } catch (error) {
+      showMessage('Failed to delete group. Please try again.', true);
+    }
   };
+  
+  const showMessage = (message, isError = false) => {
+    if (isError) {
+      setErrorMessage(message);
+      setTimeout(() => setErrorMessage(''), 3000);
+    } else {
+      setSuccessMessage(message);
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
+  };
+
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -213,110 +135,6 @@ const Groups = () => {
     fetchSubjects();
 
   }, [navigate]);
-
-  // Your existing data and logic
-  //const subjects = ["All", "Mathematics", "Computer Science", "Physics", "Chemistry", "Biology", "Literature"];
-  // const timeSlots = ["All", "Morning", "Afternoon", "Evening", "Weekend"];
-
-  const mockGroups = [
-    {
-    id: 1,
-      name: "Advanced Calculus Study Circle",
-      subject: "Mathematics",
-      description: "Weekly sessions covering differential equations, limits, and integration techniques. Perfect for Math 201 students.",
-      members: 8,
-      maxMembers: 12,
-      schedule: "Mon & Wed, 6:00 PM",
-      location: "Library Study Room B",
-      rating: 4.8,
-      tags: ["Math 201", "Calculus", "Problem Solving"],
-      difficulty: "Advanced",
-      studyStyle: "Group Discussion",
-      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=200&fit=crop",
-      organizer: "Sarah Chen"
-    },
-    {
-      id: 2,
-      name: "Data Structures & Algorithms",
-      subject: "Computer Science",
-      description: "Collaborative coding sessions focusing on DSA concepts, leetcode practice, and interview preparation.",
-      members: 6,
-      maxMembers: 10,
-      schedule: "Tue & Thu, 7:00 PM",
-      location: "Computer Lab 301",
-      rating: 4.9,
-      tags: ["CS 150", "Coding", "Interview Prep"],
-      difficulty: "Intermediate",
-      studyStyle: "Hands-on Practice",
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=200&fit=crop",
-      organizer: "Michael Rodriguez"
-    },
-    {
-      id: 3,
-      name: "Organic Chemistry Lab Group",
-      subject: "Chemistry",
-      description: "Lab report collaboration and reaction mechanism study. Great for CHEM 201 students preparing for exams.",
-      members: 5,
-      maxMembers: 8,
-      schedule: "Fri, 2:00 PM",
-      location: "Chemistry Building",
-      rating: 4.6,
-      tags: ["CHEM 201", "Lab Reports", "Reactions"],
-      difficulty: "Intermediate",
-      studyStyle: "Lab Work",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=200&fit=crop",
-      organizer: "Emma Watson"
-    },
-    {
-      id: 4,
-      name: "Spanish Conversation Club",
-      subject: "Languages",
-      description: "Practice conversational Spanish in a friendly, supportive environment. All levels welcome!",
-      members: 12,
-      maxMembers: 15,
-      schedule: "Mon, Wed, Fri, 3:00 PM",
-      location: "Language Center",
-      rating: 4.7,
-      tags: ["Spanish", "Conversation", "Cultural Exchange"],
-      difficulty: "All Levels",
-      studyStyle: "Discussion",
-      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=200&fit=crop",
-      organizer: "Carlos Martinez"
-    },
-    {
-      id: 5,
-      name: "Psychology Research Methods",
-      subject: "Psychology",
-      description: "Collaborative study sessions for PSYC 301. Focus on research design, statistics, and methodology.",
-      members: 7,
-      maxMembers: 10,
-      schedule: "Thu, 4:00 PM",
-      location: "Psychology Building",
-      rating: 4.5,
-      tags: ["PSYC 301", "Research", "Statistics"],
-      difficulty: "Advanced",
-      studyStyle: "Research Focus",
-      image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=200&fit=crop",
-      organizer: "Dr. Jennifer Lee"
-    },
-    {
-      id: 6,
-      name: "Financial Accounting Study Group",
-      subject: "Business",
-      description: "Weekly sessions covering financial statements, accounting principles, and exam preparation for ACCT 101.",
-      members: 9,
-      maxMembers: 12,
-      schedule: "Sat, 10:00 AM",
-      location: "Business School",
-      rating: 4.4,
-      tags: ["ACCT 101", "Financial Statements", "Exam Prep"],
-      difficulty: "Beginner",
-      studyStyle: "Problem Solving",
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=200&fit=crop",
-      organizer: "David Kim"
-    }
-    // Add more groups as needed...
-  ];
 
    // Load images only when groups change, not on every filter
   useEffect(() => {
@@ -671,12 +489,12 @@ const Groups = () => {
                   </div>
                   <div className="flex gap-2">
                     <GroupsButton
-                      group={group}
-                      index={index}
-                      onJoinGroup={(groupId, index) => handleJoinGroup(groupId, index, group)}
-                      onLeaveGroup={(groupId, index) => handleLeaveGroup(groupId, index, group)}
-                      onDeleteGroup={(groupId, index) => handleDeteleGroup(groupId, index, group)}
-                      isLoading={loadingGroups.has(group.id)}
+                      isOwner={authService.getUserId() === group.createdBy}
+                      member={group.member}
+                      isLoading={actionLoadingSet.has(group.id)}
+                      onJoin={() => handleJoin(group.id)}
+                      onLeave={() => handleLeave(group.id)}
+                      onDelete={() => handleDeleteGroup(group.id)}
                     />
                   </div>
 
