@@ -23,8 +23,9 @@ import {
   User
 } from 'lucide-react';
 
-import { getSubjects, getAllGroups, joinGroup, deleteGroup } from '../api/groupServices';
+import { getSubjects, getAllGroups, joinGroup, deleteGroup, leaveGroup } from '../api/groupServices';
 import { getUnsplashImage } from '../api/unsplashService';
+import { authService } from '../api/authservice';
 
 const Groups = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -65,18 +66,49 @@ const Groups = () => {
 
   const handleJoinGroup = async (groupId, index, group) => {
 
-  if ( JSON.parse(localStorage.getItem('user')).id == group.createdBy ){
-    console.log("You are the owner of this group");
-
+  try {
+    joinGroup(groupId);
     
+    setSuccessMessage('Successfully joined the group!');
+    
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000);
+    
+    setGroups(prevGroups => 
+      prevGroups.map((group, i) => 
+        i === index 
+          ? { ...group, currentMembers: group.currentMembers + 1 
+                    , member: true
+          }
+          : group
+      )
+    );
+      
+  } catch (error) {
+    console.error('Failed to join the group:', error);
+    setSuccessMessage('Failed to join group. Please try again.');
+    
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000);
+  } finally {
+    // Remove loading state
+    setLoadingGroups(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(groupId);
+      return newSet;
+    });
+  }
+};
+
+  const handleDeteleGroup = async (groupId, index, group) => {
+
+      if ( authService.getUserId() == group.createdBy ){
     // Add loading state
     setLoadingGroups(prev => new Set(prev).add(groupId));
     try {
-      console.log("group.id: " + groupId);
-      console.log("group: "+ group.createdBy);
-      console.log("userId: " + JSON.parse(localStorage.getItem('user')).id);
-    const resp = await deleteGroup(groupId);
-    console.log("respond from handlejoingroup: " + resp);
+    deleteGroup(groupId);
     
     setErrorMessage('Successfully Deleted the group!');
     
@@ -105,31 +137,39 @@ const Groups = () => {
   }
 
   } else {
-  
-  try {
-    const resp = await joinGroup(groupId);
-    console.log("respond from handlejoingroup: " + resp);
+    console.log("You are not the owner of this group");
+  }
+  };
+
+  const handleLeaveGroup = async (groupId, index, group) => {
+
+      if ( group.member ){
+    // Add loading state
+    setLoadingGroups(prev => new Set(prev).add(groupId));
+    try {
+    leaveGroup(groupId);
     
-    setSuccessMessage('Successfully joined the group!');
+    setSuccessMessage('Successfully Left the group!');
     
     setTimeout(() => {
       setSuccessMessage('');
     }, 3000);
     
     setGroups(prevGroups => 
-      prevGroups.map((group, i) => 
-        i === index 
-          ? { ...group, currentMembers: group.currentMembers + 1 }
-          : group
-      )
+      prevGroups.map((group, i) => {
+        if (i === index) {
+          return { ...group, currentMembers: group.currentMembers - 1, member: false };
+        }
+        return group;
+      })
     );
       
   } catch (error) {
-    console.error('Failed to join the group:', error);
-    setSuccessMessage('Failed to join group. Please try again.');
+    console.error('Failed to delete the group:', error);
+    setErrorMessage('Failed to delete group. Please try again.');
     
     setTimeout(() => {
-      setSuccessMessage('');
+      setErrorMessage('');
     }, 3000);
   } finally {
     // Remove loading state
@@ -140,12 +180,8 @@ const Groups = () => {
     });
   }
 
-
-
-  //else 
   }
-};
-
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -166,9 +202,7 @@ const Groups = () => {
     const fetchGroups = async () => {
       try {
         const resp = await getAllGroups();
-            console.log("All groups from server:", resp);
     setGroups(resp);
-    console.log("Groups set in state:", resp);
       } catch (error) {
         console.error('Failed to fetch subjects:', error);
       }
@@ -640,6 +674,8 @@ const Groups = () => {
                       group={group}
                       index={index}
                       onJoinGroup={(groupId, index) => handleJoinGroup(groupId, index, group)}
+                      onLeaveGroup={(groupId, index) => handleLeaveGroup(groupId, index, group)}
+                      onDeleteGroup={(groupId, index) => handleDeteleGroup(groupId, index, group)}
                       isLoading={loadingGroups.has(group.id)}
                     />
                   </div>

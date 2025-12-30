@@ -49,6 +49,11 @@ export const authService = {
     return token ? { Authorization: `Bearer ${token}` } : {};
   },
 
+  getUserId() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return Number(user.id);
+  },
+
   hasRole(role) {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     return user.role === role;

@@ -14,7 +14,7 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "email": "sajad.alizada2014@gmail.com",
+    "email": "sajad@example.com",
     "password": "password123"
 }
 
@@ -31,7 +31,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROY
 
 ### Get user StudyGroups
 GET http://localhost:8080/api/v1/users/me/groups
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpemFkYSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NjE3OTY0MywiZXhwIjoxNzY2MjY2MDQzfQ._P_WmpEtqy66sSNLV0dReFru51vVeLYRizQbumfZ6Jk
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWoiLCJsYXN0TmFtZSI6ImFsaSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NzA0NjY2OCwiZXhwIjoxNzY3MTMzMDY4fQ.DjIG8JSa76NVy_8JKZCQM8-TubYUnkQKJ-ByeOQTLh8
 
 ### PUT update user
 PUT http://localhost:8080/api/v1/users/me/update
@@ -55,8 +55,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsI
 }
 
 ### GET all study groups
-GET http://localhost:8080/api/v1/groups/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROYW1lIjoiYWxpIHphZGEiLCJyb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoic2FqYWQuYWxpemFkYTIwMTRAZ21haWwuY29tIiwiaWF0IjoxNzY2OTgzMjk5LCJleHAiOjE3NjcwNjk2OTl9.aZyOAcrTN8pujKHATwudWbl7fnZpG90MhEIv26yO7S8
+GET http://localhost:8080/api/v1/groups
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWoiLCJsYXN0TmFtZSI6ImFsaSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NzA0NjY2OCwiZXhwIjoxNzY3MTMzMDY4fQ.DjIG8JSa76NVy_8JKZCQM8-TubYUnkQKJ-ByeOQTLh8
 
 ### POST study groups
 POST http://localhost:8080/api/v1/groups

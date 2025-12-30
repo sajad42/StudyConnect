@@ -1,7 +1,5 @@
 package com.StudyConnect.dtos;
 
-import com.StudyConnect.model.Subject;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,4 +18,5 @@ public class StudyGroupDto { // GroupDto
     private boolean isPrivate;
     private int maxMembers;
     private int currentMembers;
+    private boolean isMember;
 }

@@ -57,10 +57,25 @@ public class StudyGroupController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<List<StudyGroupWithSessionDto>> getAllGroups() {
+    @PostMapping("/{studyGroupId}/leave")
+    public ResponseEntity<Void> leaveStudyGroup(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long studyGroupId) {
+
         try {
-            List<StudyGroupWithSessionDto> groups = studyGroupService.getAllGroups();
+            studyGroupService.leaveStudyGroup(studyGroupId, currentUser.getId());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            System.err.println("Controller error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<StudyGroupWithSessionDto>> getAllGroups(@AuthenticationPrincipal User currentUser) {
+        try {
+            List<StudyGroupWithSessionDto> groups = studyGroupService.getAllGroups(currentUser);
             return ResponseEntity.ok(groups);
         } catch (Exception e) {
             System.err.println("Controller error: " + e.getMessage());

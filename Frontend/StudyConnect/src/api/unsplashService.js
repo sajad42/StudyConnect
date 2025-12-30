@@ -14,7 +14,7 @@ export const getUnsplashImage = async (query, groupId, width = 400, height = 200
     );
     
     const data = await response.json();
-    console.log(`Query: "${query}", Page: ${page}, Results:`, data.results?.length || 0);
+    // console.log(`Query: "${query}", Page: ${page}, Results:`, data.results?.length || 0);
     
     // If no results, try a fallback search
     if (!data.results || data.results.length === 0) {
