@@ -33,9 +33,6 @@ export async function getGroupById(id) {
 
 // Create new group
 export async function createGroup(groupData) {
-    console.log("Creating group with data:", groupData);
-    console.log("Request URL:", BASE_URL);
-    console.log("User info:", authService.isAuthenticated());
     return makeAuthenticatedRequest(BASE_URL, {
         method: 'POST',
         body: JSON.stringify(groupData)
@@ -75,6 +72,13 @@ export async function getSubjects() {
 // Join a Group
 export async function joinGroup(studyGroupId) {
     return makeAuthenticatedRequest(`${BASE_URL}/${studyGroupId}/join`, {
+        method: 'POST'
+    });
+}
+
+// Leave a Group
+export async function leaveGroup(studyGroupId) {
+    return makeAuthenticatedRequest(`${BASE_URL}/${studyGroupId}/leave`, {
         method: 'POST'
     });
 }

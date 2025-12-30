@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,7 +148,7 @@ public class StudyGroupService {
     }
 
     @Transactional(readOnly = true)
-    public List<StudyGroupWithSessionDto> getAllGroups() {
+    public List<StudyGroupWithSessionDto> getAllGroups(User currentUser) {
         try {
             List<StudyGroup> groups = studyGroupRepository.findAll(); // Use simple findAll instead
             List<StudyGroupWithSessionDto> result = new ArrayList<>();
@@ -160,6 +161,15 @@ public class StudyGroupService {
                     dto.setId(group.getId());
                     dto.setTitle(group.getTitle());
                     dto.setDescription(group.getDescription());
+                    System.out.println("Current user ID: " + currentUser.getId());
+                    System.out.println("Group members: " + group.getCurrentMembers().stream()
+                            .map(User::getId)
+                            .collect(Collectors.toList()));
+                    dto.setMember(group.getCurrentMembers()
+                            .stream()
+                            .map(User::getId)
+                            .collect(Collectors.toSet())
+                            .contains(currentUser.getId()));
 
                     // Handle subject safely
                     if (group.getSubject() != null) {
@@ -322,10 +332,12 @@ public class StudyGroupService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Check if user is already a member
         if (group.getCurrentMembers() == null) {
             group.setCurrentMembers(new HashSet<>());
         }
 
+        // Check if group is full
         if (group.getCurrentMembers().size() >= group.getMaxMembers()) {
             throw new RuntimeException("Study group is full");
         }
@@ -335,6 +347,21 @@ public class StudyGroupService {
         // }
 
         group.getCurrentMembers().add(user);
+        studyGroupRepository.save(group);
+    }
+
+    public void leaveStudyGroup(Long studyGroupId, Long userId) {
+
+        StudyGroup group = studyGroupRepository.findById(studyGroupId)
+                .orElseThrow(() -> new RuntimeException("Study group not found"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (group.getCurrentMembers() == null || !group.getCurrentMembers().contains(user)) {
+            throw new RuntimeException("User is not a member of this group");
+        }
+        group.getCurrentMembers().remove(user);
         studyGroupRepository.save(group);
     }
 }
