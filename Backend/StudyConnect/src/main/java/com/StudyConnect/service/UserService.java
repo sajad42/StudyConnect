@@ -13,6 +13,7 @@ import com.StudyConnect.dtos.UserDto;
 import com.StudyConnect.mappers.StudyGroupMapper;
 import com.StudyConnect.mappers.UserMapper;
 import com.StudyConnect.model.StudyGroup;
+import com.StudyConnect.model.Subject;
 import com.StudyConnect.model.User;
 import com.StudyConnect.repository.UserRepository;
 
@@ -27,6 +28,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
+    public List<UserDto> getUsers() {
+        List<User> users = userRepository.findAll();
+        return UserMapper.toDto(users);
+    }
+
     public boolean isEmailExists(String email) {
         return userRepository.existsByEmail(email);
     }
@@ -36,7 +42,7 @@ public class UserService {
     }
 
     public Optional<UserDto> getProfile(String email) {
-        return userRepository.findByEmail(email).map(userMapper::toDto);
+        return userRepository.findByEmail(email).map(UserMapper::toDto);
     }
 
     public List<StudyGroupDto> getUserStudyGroup(String email) {
@@ -74,5 +80,15 @@ public class UserService {
             return true;
         }).orElse(false);
 
+    }
+
+    public List<Subject> getUsersubjectsOfInterest(String username) {
+        return userRepository.findByEmail(username)
+                    .map(User::getStudyGroups)
+                    .stream()
+                    .flatMap(set -> set.stream())
+                    .map(StudyGroup::getSubject)
+                    .distinct()
+                    .collect(Collectors.toList());
     }
 }

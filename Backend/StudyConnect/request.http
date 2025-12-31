@@ -14,14 +14,14 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "email": "sajad@example.com",
+    "email": "sajad.alizada2014@gmail.com",
     "password": "password123"
 }
 
 ###
 
 ### Get user profile 1
-GET http://localhost:8080/api/v1/users/me
+GET http://localhost:8080/api/v1/users
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWoiLCJsYXN0TmFtZSI6ImFsaSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NzA3MzU2NCwiZXhwIjoxNzY3MTU5OTY0fQ.-1Pq0w9Dar7nCCu5eF1oVCPsA3Bh5Z_2CZfuiJsAgdk
 
 ### Get user profile 2
@@ -30,7 +30,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWphZCIsImxhc3ROY
 
 
 ### Get user StudyGroups
-GET http://localhost:8080/api/v1/users/me/groups
+GET http://localhost:8080/api/v1/users/me/subjects
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWoiLCJsYXN0TmFtZSI6ImFsaSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NzA3MzU2NCwiZXhwIjoxNzY3MTU5OTY0fQ.-1Pq0w9Dar7nCCu5eF1oVCPsA3Bh5Z_2CZfuiJsAgdk
 
 ### PUT update user
@@ -55,8 +55,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsI
 }
 
 ### GET all study groups
-GET http://localhost:8080/api/v1/groups
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWoiLCJsYXN0TmFtZSI6ImFsaSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJzdWIiOiJzYWphZEBleGFtcGxlLmNvbSIsImlhdCI6MTc2NzA0NjY2OCwiZXhwIjoxNzY3MTMzMDY4fQ.DjIG8JSa76NVy_8JKZCQM8-TubYUnkQKJ-ByeOQTLh8
+GET http://localhost:8080/api/v1/groups/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiJzYWoiLCJsYXN0TmFtZSI6ImFsaXphZGEiLCJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjIsInN1YiI6InNhamFkQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY3MTQyMzM5LCJleHAiOjE3NjcyMjg3Mzl9.HLE9Gw4gqzx_dhIB_-rblvgQ2aWS47Ax9J7Iv50qCLo
 
 ### POST study groups
 POST http://localhost:8080/api/v1/groups

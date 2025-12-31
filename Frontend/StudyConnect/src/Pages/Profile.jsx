@@ -17,7 +17,7 @@ import {
   Menu,
   X
 } from "lucide-react";
-import { getUserProfile, updateUserProfile, getUserStudyGroups } from "../api/profileServices";
+import { getUserProfile, updateUserProfile, getUserStudyGroups, getInterestedSubjects } from "../api/profileServices";
 
 const Profile = () => {
     const location = useLocation();
@@ -27,6 +27,7 @@ const Profile = () => {
     const [profile, setProfile] = useState({});
     const [originalProfile, setOriginalProfile] = useState({});
     const [groups, setGroups] = useState([]);
+    const [subjects, setSubjects] = useState([]);
 
 
     const navigate = useNavigate();
@@ -42,7 +43,6 @@ const Profile = () => {
 
 //   get User Profile
   useEffect(() => {
-    console.log("from useEffect");
     
     const token = localStorage.getItem('token');
     if (!token) {
@@ -62,15 +62,25 @@ const Profile = () => {
     const fetchGroups = async () => {
         try {
             const groups = await getUserStudyGroups();
-            console.log("Groups fetched:", groups);
             setGroups(groups);
         } catch (error) {
             console.error('Failed to fetch User Study Groups:', error)
         }
     };
 
+    const fetchInterestedSubjects = async () => {
+        try {
+            const interestedSubjects = await getInterestedSubjects();
+            console.log("Subjects fetched: ", interestedSubjects);
+            setSubjects(interestedSubjects);
+        } catch (error) {
+            console.error('Failed to fetch User Interested Subjects:', error)
+        }
+    }
+
     fetchUserProfile();
     fetchGroups();
+    fetchInterestedSubjects();
     
   }, [navigate]);
 
@@ -95,13 +105,6 @@ const Profile = () => {
     setProfile(prev => ({ ...prev, [field]: value }));
   };
 
-  const myGroups = [
-    { id: 1, name: "Advanced Algorithms", subject: "Computer Science", members: 8 },
-    { id: 2, name: "Calculus III Study Group", subject: "Mathematics", members: 6 },
-    { id: 3, name: "Data Structures Workshop", subject: "Computer Science", members: 12 }
-  ];
-
-  const subjects = ["Computer Science", "Mathematics", "Physics", "Chemistry"];
   const achievements = [
     { name: "Study Group Creator", description: "Created 5+ study groups" },
     { name: "Active Participant", description: "Attended 50+ study sessions" },
@@ -422,10 +425,10 @@ const Profile = () => {
                     <div className="flex flex-wrap gap-2">
                       {subjects.map((subject) => (
                         <span 
-                          key={subject} 
+                          key={subject.id} 
                           className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
                         >
-                          {subject}
+                          {subject.name}
                         </span>
                       ))}
                     </div>
