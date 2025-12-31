@@ -41,6 +41,7 @@ export default function dashboard() {
         const fetchGroups = async () => {
             try {
                 const groups = await getUserGroups();
+                console.log(groups);
                 setMyGroups(groups);
             } catch (error) {
                 console.error('Failed to fetch groups:', error);

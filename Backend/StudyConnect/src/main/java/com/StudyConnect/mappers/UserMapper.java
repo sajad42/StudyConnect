@@ -1,5 +1,7 @@
 package com.StudyConnect.mappers;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.StudyConnect.model.User;
@@ -9,7 +11,7 @@ import com.StudyConnect.dtos.UserDto;
 @Component
 public class UserMapper {
 
-    public UserDto toDto(User user) {
+    public static UserDto toDto(User user) {
         if (user == null) {
             return null;
         }
@@ -24,8 +26,16 @@ public class UserMapper {
         userDto.setYear(user.getYear());
         userDto.setBio(user.getBio());
         userDto.setRole(user.getRole());
+        userDto.setCreatedAt(user.getCreatedAt());
 
         return userDto;
+    }
+
+    public static List<UserDto> toDto(List<User> users) {
+        return users.stream()
+                    .map(UserMapper::toDto)
+                    .toList();
+
     }
 
     public User toEntity(UserDto userDto) {

@@ -28,7 +28,7 @@ import lombok.AllArgsConstructor;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/groups")
-@PreAuthorize("hasRole('USER')")
+@PreAuthorize("hasAnyRole('USER','ADMIN')")
 public class StudyGroupController {
 
     @Autowired

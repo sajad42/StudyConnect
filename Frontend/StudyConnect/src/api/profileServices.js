@@ -23,7 +23,6 @@ const makeAuthenticatedRequest = async (url, options = {}) => {
 
 // Get all groups
 export async function getUserProfile() {
-    console.log("getUserProfile called");
     return makeAuthenticatedRequest(BASE_URL);
 }
 
@@ -38,4 +37,9 @@ export async function updateUserProfile(profileData) {
 // Get user's study groups
 export async function getUserStudyGroups() {
     return makeAuthenticatedRequest(`${BASE_URL}/groups`);
+}
+
+// Get user's interested subjects
+export async function getInterestedSubjects() {
+    return makeAuthenticatedRequest(`${BASE_URL}/subjects`)
 }
