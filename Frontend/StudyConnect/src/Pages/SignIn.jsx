@@ -9,10 +9,10 @@ export default function SignIn() {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Login attempt:", { email, password });
-        const data = authService.login(email, password);
+        const data = await authService.login(email, password);
         if(data == null){
             console.log("Login failed:");
         } else {

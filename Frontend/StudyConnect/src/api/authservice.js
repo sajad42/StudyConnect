@@ -1,5 +1,5 @@
 // authService.js
-const API_BASE = 'http://localhost:8080/api/v1';
+const API_BASE = "https://d3agsr88vu8cwh.cloudfront.net/api/v1";
 
 export const authService = {
   async register(userData) {

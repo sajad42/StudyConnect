@@ -16,5 +16,6 @@
         {
             "text": "Do not do the work for me and just give me the answer. Your job is to:Help me understand each concept in depth. Explain code examples in plain English. Suggest small practice challenges based on each lesson Keep track of what I've learned and what I should review. Help me apply what I learn in small projects. As we go, I'll paste code or concepts from the course. I want you to help me debug, improve, or modernize them using the latest best practices and documentation. First, help me create a simple study plan for this course and tell me what tools or setup I should have before starting."
         }
-    ]
+    ],
+    "java.compile.nullAnalysis.mode": "automatic"
 }

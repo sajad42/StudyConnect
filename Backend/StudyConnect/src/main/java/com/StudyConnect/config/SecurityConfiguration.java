@@ -62,8 +62,9 @@ public class SecurityConfiguration {
 
                 configuration.setAllowedOriginPatterns(Arrays.asList(
                                 "http://localhost:*",
-                                "http://127.0.0.1:*"));
-
+                                "http://127.0.0.1:*",
+                                "https://d3hl37aapqqsoq.cloudfront.net", // Adjust as necessary for your frontend domains
+                                "https://*.cloudfront.net"));  // ← Add this for all CloudFront domains
                 configuration.setAllowedMethods(Arrays.asList(
                                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
 
