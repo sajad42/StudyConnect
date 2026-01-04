@@ -7,16 +7,17 @@ export default function SignIn() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Login attempt:", { email, password });
-        const data = await authService.login(email, password);
-        if(data == null){
-            console.log("Login failed:");
-        } else {
-            navigate("/dashboard");
+        setError(""); // Clear previous errors
+        try {
+          const data = await authService.login(email, password);
+          navigate("/dashboard");
+        } catch (error) {
+          setError("Invalid email or password. Please try again.");
         }
     };
     return(
@@ -49,6 +50,13 @@ export default function SignIn() {
           {/* Content */}
           <div className="px-6 pb-8 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+                  {error}
+                </div>
+              )}
+              
               {/* Email */}
               <div className="space-y-2">
                 <label htmlFor="email" className="text-gray-700 font-medium text-sm block">
