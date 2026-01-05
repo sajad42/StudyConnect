@@ -1,10 +1,13 @@
+server:
+  port: 5000
+
 spring:
   application:
     name: StudyConnect
   datasource:
-    url: jdbc:postgresql://localhost:5432/studyconnectdb
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:studyconnectdb}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

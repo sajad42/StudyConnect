@@ -1,6 +1,6 @@
 import { authService } from "./authservice";
 
-const BASE_URL = "http://localhost:8080/api/v1/groups";
+const BASE_URL = "https://d3agsr88vu8cwh.cloudfront.net/api/v1/groups";
 
 // Helper function for authenticated requests
 const makeAuthenticatedRequest = async (url, options = {}) => {
@@ -66,7 +66,7 @@ export async function getUserGroups() {
 
 // Get subjects
 export async function getSubjects() {
-    return makeAuthenticatedRequest("http://localhost:8080/api/v1/subjects");
+    return makeAuthenticatedRequest("https://d3agsr88vu8cwh.cloudfront.net/api/v1/subjects");
 }
 
 // Join a Group
