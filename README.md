@@ -1,7 +1,7 @@
 StudyConnect (StudySync)
 StudyConnect is a full-stack, cloud-native platform designed to help university students collaborate by creating and joining study groups. Built with Spring Boot 3 and React 19, the application is fully deployed on AWS with a focus on security and scalability.
 
-🚀 Live Demo: [Frontend](https://d3hl37aapqqsoq.cloudfront.net/) | 🔑 Backend API
+🚀 Live Demo: [Frontend](studyconnect.sajad.website) | 🔑 Backend API
 
 🌟 Key Features
 User Authentication: Secure signup and login system using JWT (JSON Web Tokens) for stateless session management.
