@@ -1,6 +1,7 @@
 import { authService } from "./authservice";
+import { API_BASE } from "./config";
 
-const BASE_URL = "https://d3agsr88vu8cwh.cloudfront.net/api/v1/users";
+const BASE_URL = `${API_BASE}/users`;
 
 // Helper function for authenticated requests
 const makeAuthenticatedRequest = async (url, options = {}) => {

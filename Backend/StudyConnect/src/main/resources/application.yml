@@ -1,11 +1,11 @@
 server:
-  port: 5000
+  port: ${PORT:8080}
 
 spring:
   application:
     name: StudyConnect
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:studyconnectdb}
+    url: ${SPRING_DATASOURCE_URL:${JDBC_DATABASE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:neondb}${DB_PARAMS:?sslmode=prefer}}}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver

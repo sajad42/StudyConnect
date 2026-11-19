@@ -63,6 +63,9 @@ public class SecurityConfiguration {
                 configuration.setAllowedOriginPatterns(Arrays.asList(
                                 "http://localhost:*",
                                 "http://127.0.0.1:*",
+                                "https://*.vercel.app",
+                                "https://vercel.app",
+                                "https://*.run.app",
                                 "https://d3hl37aapqqsoq.cloudfront.net", // Adjust as necessary for your frontend domains
                                 "https://*.cloudfront.net"));  // ← Add this for all CloudFront domains
                 configuration.setAllowedMethods(Arrays.asList(

@@ -1,5 +1,5 @@
 // authService.js
-const API_BASE = "https://d3agsr88vu8cwh.cloudfront.net/api/v1";
+import { API_BASE } from "./config";
 
 export const authService = {
   async register(userData) {
