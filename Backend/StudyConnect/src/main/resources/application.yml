@@ -1,5 +1,7 @@
 server:
   port: ${PORT:8080}
+  error:
+    include-message: always
 
 spring:
   application:
@@ -12,12 +14,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
         "[format_sql]": true
     database: POSTGRESQL
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
 jwt:
   secret: ${JWT_SECRET:bXlTdXBlclNlY3JldEtleUZvckp3dFRva2VuMTIzNDU2Nzg5MEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaYWJjZGVmZ2hpams=}
   expiration: 86400000 # 24 hours
@@ -25,5 +28,5 @@ jwt:
 
 logging:
   level:
-    org.springframework.security: DEBUG
-    com.StudyConnect.security: DEBUG
+    org.springframework.security: ${SECURITY_LOG_LEVEL:INFO}
+    com.StudyConnect.security: ${SECURITY_LOG_LEVEL:INFO}

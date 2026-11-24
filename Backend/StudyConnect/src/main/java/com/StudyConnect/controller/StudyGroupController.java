@@ -46,54 +46,28 @@ public class StudyGroupController {
     public ResponseEntity<Void> joinStudyGroup(
             @AuthenticationPrincipal User currentUser,
             @PathVariable Long studyGroupId) {
-
-        try {
-            studyGroupService.joinStudyGroup(studyGroupId, currentUser.getId());
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            System.err.println("Controller error: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        studyGroupService.joinStudyGroup(studyGroupId, currentUser.getId());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{studyGroupId}/leave")
     public ResponseEntity<Void> leaveStudyGroup(
             @AuthenticationPrincipal User currentUser,
             @PathVariable Long studyGroupId) {
-
-        try {
-            studyGroupService.leaveStudyGroup(studyGroupId, currentUser.getId());
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            System.err.println("Controller error: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        studyGroupService.leaveStudyGroup(studyGroupId, currentUser.getId());
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
     public ResponseEntity<List<StudyGroupWithSessionDto>> getAllGroups(@AuthenticationPrincipal User currentUser) {
-        try {
-            List<StudyGroupWithSessionDto> groups = studyGroupService.getAllGroups(currentUser);
-            return ResponseEntity.ok(groups);
-        } catch (Exception e) {
-            System.err.println("Controller error: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        List<StudyGroupWithSessionDto> groups = studyGroupService.getAllGroups(currentUser);
+        return ResponseEntity.ok(groups);
     }
 
     @GetMapping("/me")
     public ResponseEntity<List<StudyGroupWithSessionDto>> getUserGroups(@AuthenticationPrincipal User currentUser) {
-        try {
-            List<StudyGroupWithSessionDto> groups = studyGroupService.getUserGroups(currentUser);
-            return ResponseEntity.ok(groups);
-        } catch (Exception e) {
-            System.err.println("Controller error in getUserGroups: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        List<StudyGroupWithSessionDto> groups = studyGroupService.getUserGroups(currentUser);
+        return ResponseEntity.ok(groups);
     }
 
     @GetMapping("/{id}")
@@ -115,9 +89,8 @@ public class StudyGroupController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // @PreAuthorize("hasRole('ADMIN') or @studyGroupService.isOwner(#id,
-    // authentication.principal.id)")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @studyGroupService.isOwner(#id, authentication.principal.id)")
     public ResponseEntity<Void> deleteGroup(
             @PathVariable Long id,
             @AuthenticationPrincipal User currentUser) {

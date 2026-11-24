@@ -5,12 +5,12 @@ import com.StudyConnect.model.Session;
 
 import java.util.List;
 
-// import org.mapstruct.Mapper;
-
-// @Mapper(componentModel = "spring")
 public interface SessionMapper {
 
     public static SessionDto toSessionDto(Session session) {
+        if (session == null) {
+            return null;
+        }
         SessionDto dto = new SessionDto();
         dto.setId(session.getId());
         dto.setTitle(session.getTitle());

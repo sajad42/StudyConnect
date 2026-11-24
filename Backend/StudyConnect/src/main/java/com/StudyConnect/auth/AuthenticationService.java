@@ -1,9 +1,11 @@
 package com.StudyConnect.auth;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.StudyConnect.config.JwtService;
 import com.StudyConnect.mappers.UserMapper;
@@ -24,14 +26,28 @@ public class AuthenticationService {
         private final UserMapper userMapper;
 
         public AuthenticationResponse register(RegisterRequest request) {
+                if (request.getEmail() == null || request.getEmail().isBlank()) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+                }
+                if (request.getPassword() == null || request.getPassword().length() < 6) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                        "Password must be at least 6 characters long");
+                }
+
+                String normalizedEmail = request.getEmail().trim().toLowerCase();
+                if (repository.existsByEmailIgnoreCase(normalizedEmail)) {
+                        throw new ResponseStatusException(HttpStatus.CONFLICT,
+                                        "An account with this email already exists");
+                }
+
                 var user = User.builder()
-                                .firstName(request.getFirstName())
-                                .lastName(request.getLastName())
-                                .email(request.getEmail())
+                                .firstName(request.getFirstName() != null ? request.getFirstName().trim() : "")
+                                .lastName(request.getLastName() != null ? request.getLastName().trim() : "")
+                                .email(normalizedEmail)
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .university(request.getUniversity())
-                                .major(request.getMajor())
-                                .year(request.getYear())
+                                .university(request.getUniversity() != null ? request.getUniversity().trim() : null)
+                                .major(request.getMajor() != null ? request.getMajor().trim() : null)
+                                .year(request.getYear() != null ? request.getYear().trim() : null)
                                 .role(Role.USER)
                                 .build();
 
@@ -47,13 +63,16 @@ public class AuthenticationService {
         }
 
         public AuthenticationResponse authenticate(AuthenticationRequest request) {
+                String normalizedEmail = request.getEmail() != null ? request.getEmail().trim().toLowerCase() : "";
+
                 authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(
-                                                request.getEmail(),
+                                                normalizedEmail,
                                                 request.getPassword()));
 
-                var user = repository.findByEmail(request.getEmail())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+                var user = repository.findByEmailIgnoreCase(normalizedEmail)
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                                                "Invalid email or password"));
 
                 var jwtToken = jwtService.generateToken(user);
 

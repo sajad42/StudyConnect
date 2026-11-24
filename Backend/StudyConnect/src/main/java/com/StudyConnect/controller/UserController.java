@@ -88,10 +88,16 @@ public class UserController {
     public ResponseEntity<?> changePassword(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody ChangePasswordRequest request) {
+        if (userDetails == null || userDetails.getUsername() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+        if (request.getNewPassword() == null || request.getNewPassword().length() < 6) {
+            return ResponseEntity.badRequest().body("New password must be at least 6 characters.");
+        }
         boolean changed = userService.changePassword(userDetails.getUsername(), request.getOldPassword(),
                 request.getNewPassword());
         if (changed) {
-            return ResponseEntity.ok("Password updated sucsseful");
+            return ResponseEntity.ok("Password updated successfully");
         } else {
             return ResponseEntity.badRequest().body("Old password is incorrect.");
         }

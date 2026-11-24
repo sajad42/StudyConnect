@@ -5,18 +5,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.StudyConnect.dtos.SessionDto;
 import com.StudyConnect.dtos.StudyGroupCreateRequest;
 import com.StudyConnect.dtos.StudyGroupDto;
 import com.StudyConnect.dtos.StudyGroupWithSessionDto;
 import com.StudyConnect.mappers.StudyGroupMapper;
+import com.StudyConnect.model.Role;
 import com.StudyConnect.model.Session;
 import com.StudyConnect.model.StudyGroup;
 import com.StudyConnect.model.Subject;
@@ -47,16 +49,24 @@ public class StudyGroupService {
     private UserRepository userRepository;
 
     public boolean isOwner(Long studyGroupId, Long userId) {
-        // Add logging here
-        System.out.println("isOwner called with groupId: " + studyGroupId + ", userId: " + userId);
         return studyGroupRepository.findById(studyGroupId)
-                .map(group -> group.getCreatedBy().getId().equals(userId))
+                .map(group -> group.getCreatedBy() != null && group.getCreatedBy().getId().equals(userId))
                 .orElse(false);
     }
 
     @Transactional
     public StudyGroupWithSessionDto createGroupWithInitialSession(User currentUser, StudyGroupCreateRequest req) {
-        Subject subject = getOrCreateSubject(req.getSubject());
+        if (req.getTitle() == null || req.getTitle().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Group title is required");
+        }
+        if (req.getSubject() == null || req.getSubject().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subject is required");
+        }
+        if (req.getMaxMembers() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max members must be at least 2");
+        }
+
+        Subject subject = getOrCreateSubject(req.getSubject().trim());
 
         StudyGroup group = buildStudyGroup(currentUser, req, subject);
         StudyGroup savedGroup = studyGroupRepository.save(group);
@@ -64,7 +74,9 @@ public class StudyGroupService {
         SessionDto sessionDto = createSessionIfRequested(req, savedGroup);
         List<SessionDto> sessions = sessionDto != null ? List.of(sessionDto) : List.of();
 
-        return StudyGroupMapper.toGroupWithSessionDto(savedGroup, sessions);
+        StudyGroupWithSessionDto result = StudyGroupMapper.toGroupWithSessionDto(savedGroup, sessions);
+        result.setMember(true);
+        return result;
     }
 
     private Subject getOrCreateSubject(String subjectName) {
@@ -74,17 +86,20 @@ public class StudyGroupService {
     }
 
     private StudyGroup buildStudyGroup(User creator, StudyGroupCreateRequest req, Subject subject) {
-        // Get the managed User entity from database
         User managedUser = userRepository.findById(creator.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        Set<User> members = new HashSet<>();
+        members.add(managedUser);
+
         return StudyGroup.builder()
-                .title(req.getTitle())
-                .description(req.getDescription())
-                .tags(req.getTags())
-                .createdBy(creator)
+                .title(req.getTitle().trim())
+                .description(req.getDescription() != null ? req.getDescription().trim() : "")
+                .tags(req.getTags() != null ? req.getTags() : new String[0])
+                .createdBy(managedUser)
                 .maxMembers(req.getMaxMembers())
                 .subject(subject)
-                .currentMembers(Set.of(managedUser))
+                .currentMembers(members)
                 .build();
     }
 
@@ -95,10 +110,10 @@ public class StudyGroupService {
 
         Session session = Session.builder()
                 .studyGroup(group)
-                .title(req.getSessionTitle())
+                .title(req.getSessionTitle().trim())
                 .dateTime(req.getSessionDateTime())
-                .location(req.getSessionLocation())
-                .isOnline(req.getIsOnline() != null ? req.getIsOnline() : false)
+                .location(req.getSessionLocation().trim())
+                .isOnline(Boolean.TRUE.equals(req.getIsOnline()))
                 .build();
 
         return StudyGroupMapper.toSessionDto(studySessionRepository.save(session));
@@ -106,134 +121,66 @@ public class StudyGroupService {
 
     @Transactional(readOnly = true)
     public List<StudyGroupWithSessionDto> getUserGroups(User currentUser) {
-        try {
-            List<StudyGroup> groups = studyGroupRepository.findByCurrentMembersContaining(currentUser);
-            List<StudyGroupWithSessionDto> result = new ArrayList<>();
+        List<StudyGroup> groups = studyGroupRepository.findByCurrentMembersContaining(currentUser);
+        List<StudyGroupWithSessionDto> result = new ArrayList<>();
 
-            for (StudyGroup group : groups) {
-                try {
-                    StudyGroupWithSessionDto dto = new StudyGroupWithSessionDto();
-                    dto.setId(group.getId());
-                    dto.setTitle(group.getTitle());
-                    dto.setDescription(group.getDescription());
-                    dto.setSubject(group.getSubject() != null ? group.getSubject().getName() : null);
-                    dto.setTags(group.getTags() != null ? group.getTags() : new String[0]);
-                    dto.setCreatedBy(group.getCreatedBy() != null ? group.getCreatedBy().getId() : null);
-                    dto.setMaxMembers(group.getMaxMembers());
-                    dto.setCurrentMembers(group.getCurrentMembers() != null ? group.getCurrentMembers().size() : 0);
+        for (StudyGroup group : groups) {
+            try {
+                List<SessionDto> sessionDtos = studySessionRepository.findByStudyGroupId(group.getId())
+                        .stream()
+                        .map(StudyGroupMapper::toSessionDto)
+                        .collect(Collectors.toList());
 
-                    List<Session> sessions = studySessionRepository.findByStudyGroupId(group.getId());
-                    List<SessionDto> sessionDtos = new ArrayList<>();
-                    for (Session session : sessions) {
-                        SessionDto sessionDto = new SessionDto();
-                        sessionDto.setId(session.getId());
-                        sessionDto.setTitle(session.getTitle());
-                        sessionDto.setDateTime(session.getDateTime());
-                        sessionDto.setLocation(session.getLocation());
-                        sessionDtos.add(sessionDto);
-                    }
-                    dto.setSessions(sessionDtos);
-                    result.add(dto);
-                } catch (Exception e) {
-                    System.err.println("Error processing group " + group.getId() + ": " + e.getMessage());
-                    continue;
-                }
+                StudyGroupWithSessionDto dto = StudyGroupMapper.toGroupWithSessionDto(group, sessionDtos);
+                dto.setMember(true);
+                result.add(dto);
+            } catch (Exception e) {
+                System.err.println("Error processing group " + group.getId() + ": " + e.getMessage());
             }
-            return result;
-        } catch (Exception e) {
-            System.err.println("Error in getUserGroups: " + e.getMessage());
-            e.printStackTrace();
-            return new ArrayList<>();
         }
+        return result;
     }
 
     @Transactional(readOnly = true)
     public List<StudyGroupWithSessionDto> getAllGroups(User currentUser) {
-        try {
-            List<StudyGroup> groups = studyGroupRepository.findAll(); // Use simple findAll instead
-            List<StudyGroupWithSessionDto> result = new ArrayList<>();
+        List<StudyGroup> groups = studyGroupRepository.findAll();
+        List<StudyGroupWithSessionDto> result = new ArrayList<>();
 
-            for (StudyGroup group : groups) {
-                try {
-                    StudyGroupWithSessionDto dto = new StudyGroupWithSessionDto();
+        for (StudyGroup group : groups) {
+            try {
+                List<SessionDto> sessionDtos = studySessionRepository.findByStudyGroupId(group.getId())
+                        .stream()
+                        .map(StudyGroupMapper::toSessionDto)
+                        .collect(Collectors.toList());
 
-                    // Set basic fields safely
-                    dto.setId(group.getId());
-                    dto.setTitle(group.getTitle());
-                    dto.setDescription(group.getDescription());
-                    System.out.println("Current user ID: " + currentUser.getId());
-                    System.out.println("Group members: " + group.getCurrentMembers().stream()
-                            .map(User::getId)
-                            .collect(Collectors.toList()));
-                    dto.setMember(group.getCurrentMembers()
-                            .stream()
-                            .map(User::getId)
-                            .collect(Collectors.toSet())
-                            .contains(currentUser.getId()));
+                StudyGroupWithSessionDto dto = StudyGroupMapper.toGroupWithSessionDto(group, sessionDtos);
 
-                    // Handle subject safely
-                    if (group.getSubject() != null) {
-                        dto.setSubject(group.getSubject().getName());
-                    } else {
-                        dto.setSubject(null);
-                    }
+                boolean isMember = group.getCurrentMembers() != null && group.getCurrentMembers()
+                        .stream()
+                        .anyMatch(member -> member.getId().equals(currentUser.getId()));
+                dto.setMember(isMember);
 
-                    // Handle tags safely - create new array to avoid concurrent modification
-                    if (group.getTags() != null) {
-                        String[] safeTags = new String[group.getTags().length];
-                        System.arraycopy(group.getTags(), 0, safeTags, 0, group.getTags().length);
-                        dto.setTags(safeTags);
-                    } else {
-                        dto.setTags(new String[0]);
-                    }
-
-                    // Handle creator safely
-                    if (group.getCreatedBy() != null) {
-                        dto.setCreatedBy(group.getCreatedBy().getId());
-                    }
-
-                    dto.setMaxMembers(group.getMaxMembers());
-
-                    // Handle current members count safely
-                    if (group.getCurrentMembers() != null) {
-                        dto.setCurrentMembers(group.getCurrentMembers().size());
-                    } else {
-                        dto.setCurrentMembers(0);
-                    }
-
-                    // Handle sessions
-                    List<Session> sessions = studySessionRepository.findByStudyGroupId(group.getId());
-                    List<SessionDto> sessionDtos = new ArrayList<>();
-
-                    for (Session session : sessions) {
-                        SessionDto sessionDto = new SessionDto();
-                        sessionDto.setId(session.getId());
-                        sessionDto.setTitle(session.getTitle());
-                        sessionDto.setDateTime(session.getDateTime());
-                        sessionDto.setLocation(session.getLocation());
-                        sessionDtos.add(sessionDto);
-                    }
-
-                    dto.setSessions(sessionDtos);
-                    result.add(dto);
-
-                } catch (Exception e) {
-                    // Skip this group if there's an issue
-                    System.err.println("Error processing group " + group.getId() + ": " + e.getMessage());
-                    continue;
+                if (group.getTags() != null) {
+                    String[] safeTags = new String[group.getTags().length];
+                    System.arraycopy(group.getTags(), 0, safeTags, 0, group.getTags().length);
+                    dto.setTags(safeTags);
+                } else {
+                    dto.setTags(new String[0]);
                 }
+
+                result.add(dto);
+            } catch (Exception e) {
+                System.err.println("Error processing group " + group.getId() + ": " + e.getMessage());
             }
-
-            return result;
-
-        } catch (Exception e) {
-            System.err.println("Error in getAllGroups: " + e.getMessage());
-            return new ArrayList<>(); // Return empty list instead of throwing exception
         }
+
+        return result;
     }
 
+    @Transactional(readOnly = true)
     public StudyGroupWithSessionDto getGroupById(Long id) {
-        StudyGroup group = studyGroupRepository.findById(id).orElseThrow();
+        StudyGroup group = studyGroupRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Study group not found"));
         List<Session> sessions = studySessionRepository.findByStudyGroupId(group.getId());
         List<SessionDto> sessionDtos = sessions.stream()
                 .map(StudyGroupMapper::toSessionDto)
@@ -241,9 +188,12 @@ public class StudyGroupService {
         return toGroupWithSessionDto(group, sessionDtos);
     }
 
+    @Transactional
     public Optional<StudyGroupDto> updateStudyGroup(Long id, User currentUser, StudyGroupDto updateStudyGroup) {
         return studyGroupRepository.findById(id)
-                .filter(studyGroup -> studyGroup.getCreatedBy().getId().equals(currentUser.getId()))
+                .filter(studyGroup -> currentUser.getRole() == Role.ADMIN
+                        || (studyGroup.getCreatedBy() != null
+                                && studyGroup.getCreatedBy().getId().equals(currentUser.getId())))
                 .map(studyGroup -> {
                     studyGroup.setTitle(updateStudyGroup.getTitle());
                     studyGroup.setDescription(updateStudyGroup.getDescription());
@@ -263,105 +213,73 @@ public class StudyGroupService {
                 });
     }
 
+    @Transactional
     public boolean deleteStudyGroup(User currentUser, Long id) {
-
-        System.out.println("Delete study group called with ID: " + id);
-        System.out.println("Current user ID: " + currentUser.getId());
-
-        // Check if group exists first // adding second test
         Optional<StudyGroup> groupOpt = studyGroupRepository.findById(id);
         if (groupOpt.isEmpty()) {
-            System.out.println("Group with ID " + id + " not found!");
             return false;
         }
 
-        StudyGroup group = groupOpt.get();
-        System.out.println("Found group: " + group.getTitle());
-        System.out.println("Group created by: " + group.getCreatedBy().getId());
+        StudyGroup studyGroup = groupOpt.get();
+        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+        boolean isCreator = studyGroup.getCreatedBy() != null
+                && studyGroup.getCreatedBy().getId().equals(currentUser.getId());
 
-        return studyGroupRepository.findById(id)
-                .filter(studyGroup -> {
-                    System.out.println("Filter check - Owner: " + studyGroup.getCreatedBy().getId() + ", Current: "
-                            + currentUser.getId());
-                    return studyGroup.getCreatedBy().getId().equals(currentUser.getId());
-                })
-                .map(studyGroup -> {
-                    try {
-                        System.out.println("Starting delete operations...");
+        if (!isAdmin && !isCreator) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only the group creator or an admin can delete this study group");
+        }
 
-                        System.out.println("Step 1: Clearing members...");
-                        studyGroup.getCurrentMembers().clear();
+        if (studyGroup.getCurrentMembers() != null) {
+            studyGroup.getCurrentMembers().clear();
+            studyGroupRepository.save(studyGroup);
+        }
 
-                        System.out.println("Step 2: Saving group...");
-                        studyGroupRepository.save(studyGroup);
-
-                        System.out.println("Step 3: Deleting group...");
-                    studyGroupRepository.delete(studyGroup);
-
-                        System.out.println("Delete completed successfully");
-                    return true;
-                    } catch (Exception e) {
-                        System.err.println("Error during delete: " + e.getClass().getSimpleName());
-                        System.err.println("Error message: " + e.getMessage());
-                        e.printStackTrace();
-                        throw e;
-                    }
-                }).orElse(false);
+        studyGroupRepository.delete(studyGroup);
+        return true;
     }
-
-    // boolean b = studyGroupRepository.findById(id)
-    // .filter(studyGroup ->
-    // studyGroup.getCreatedBy().getId().equals(currentUser.getId()))
-    // .map(studyGroup -> {
-
-    // // Clear member relationships to avoid constraint violation
-    // studyGroup.getCurrentMembers().clear();
-    // studyGroupRepository.save(studyGroup);
-
-    // studyGroupRepository.delete(studyGroup);
-    // return true;
-    // }).orElse(false);
-    // return b;
-    // }
 
     @Transactional
     public void joinStudyGroup(Long studyGroupId, Long userId) {
         StudyGroup group = studyGroupRepository.findById(studyGroupId)
-                .orElseThrow(() -> new RuntimeException("Study group not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Study group not found"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // Check if user is already a member
         if (group.getCurrentMembers() == null) {
             group.setCurrentMembers(new HashSet<>());
         }
 
-        // Check if group is full
-        if (group.getCurrentMembers().size() >= group.getMaxMembers()) {
-            throw new RuntimeException("Study group is full");
+        boolean alreadyMember = group.getCurrentMembers().stream()
+                .anyMatch(m -> m.getId().equals(userId));
+        if (alreadyMember) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "You are already a member of this group");
         }
-        // Check if user is already a member
-        // if (group.getCurrentMembers().contains(user)) {
-        // throw new RuntimeException("User is already a member of this group");
-        // }
+
+        if (group.getMaxMembers() != null && group.getCurrentMembers().size() >= group.getMaxMembers()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This study group is already full");
+        }
 
         group.getCurrentMembers().add(user);
         studyGroupRepository.save(group);
     }
 
+    @Transactional
     public void leaveStudyGroup(Long studyGroupId, Long userId) {
-
         StudyGroup group = studyGroupRepository.findById(studyGroupId)
-                .orElseThrow(() -> new RuntimeException("Study group not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Study group not found"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        if (group.getCurrentMembers() == null || !group.getCurrentMembers().contains(user)) {
-            throw new RuntimeException("User is not a member of this group");
+        boolean isMember = group.getCurrentMembers() != null && group.getCurrentMembers().stream()
+                .anyMatch(m -> m.getId().equals(userId));
+        if (!isMember) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not a member of this group");
         }
-        group.getCurrentMembers().remove(user);
+
+        group.getCurrentMembers().removeIf(m -> m.getId().equals(user.getId()));
         studyGroupRepository.save(group);
     }
 }
